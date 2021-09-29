@@ -2,6 +2,7 @@ package study.querydsl.entity;
 
 import com.querydsl.core.QueryResults;
 import com.querydsl.core.Tuple;
+import com.querydsl.core.types.ExpressionUtils;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.core.types.dsl.Expressions;
@@ -502,6 +503,38 @@ public class QuerydslBasicTest {
                 .select(Projections.fields(MemberDto.class,
                         member.username,
                         member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    public void findDtoByConstructor() {
+        List<MemberDto> result = queryFactory
+                .select(Projections.constructor(MemberDto.class,
+                        member.username,
+                        member.age))
+                .from(member)
+                .fetch();
+
+        for (MemberDto memberDto : result) {
+            System.out.println("memberDto = " + memberDto);
+        }
+    }
+
+    @Test
+    public void findUserDto() {
+        QMember memberSub = new QMember("memberSub");
+
+        List<MemberDto> result = queryFactory
+                .select(Projections.fields(MemberDto.class,
+                        member.username.as("name"),
+                        ExpressionUtils.as(JPAExpressions
+                        .select(memberSub.age.max())
+                                .from(memberSub), "age")))
                 .from(member)
                 .fetch();
 
